@@ -14,6 +14,7 @@
 #include <common/strlib.hpp> //safestrncpy
 #include <common/timer.hpp>  // DIFF_TICK
 
+#include "discordbot.hpp"
 #include "battle.hpp"
 #include "clif.hpp" //clif_chsys_msg
 #include "guild.hpp"
@@ -240,6 +241,8 @@ int channel_join(struct Channel *channel, map_session_data *sd) {
 		set_eof(sd->fd);
 	}
 
+	discord_bot_join_hook(channel, sd);
+
 	return 0;
 }
 
@@ -454,13 +457,17 @@ int channel_send(struct Channel *channel, map_session_data *sd, const char *msg)
 		return -2;
 	}
 	else {
-		char output[CHAT_SIZE_MAX];
-		unsigned long color = channel->color;
-		if((channel->opt&CHAN_OPT_COLOR_OVERRIDE) && sd->fontcolor && sd->fontcolor < channel_config.colors_count && channel_config.colors[sd->fontcolor])
-			color = channel_config.colors[sd->fontcolor];
-		safesnprintf(output, CHAT_SIZE_MAX, "%s %s : %s", channel->alias, sd->status.name, msg);
-		clif_channel_msg(channel,output,color);
-		sd->channel_tick[idx] = gettick();
+	char output[CHAT_SIZE_MAX];
+	char output2[CHAT_SIZE_MAX];
+	unsigned long color = channel->color;
+	if ((channel->opt & CHAN_OPT_COLOR_OVERRIDE) && sd->fontcolor && sd->fontcolor < channel_config.colors_count && channel_config.colors[sd->fontcolor])
+    color = channel_config.colors[sd->fontcolor];
+	safesnprintf(output2, CHAT_SIZE_MAX, "[%s] %s", channel->alias, msg);
+	safesnprintf(output, CHAT_SIZE_MAX, "[%s] %s : %s", channel->alias, sd->status.name, msg); // Include channel->alias in the output
+	clif_channel_msg(channel, output, color);
+	sd->channel_tick[idx] = gettick();
+
+	discord_bot_hook(channel, sd, output2); // Pass the modified message to discord_bot_hook
 	}
 	return 0;
 }
@@ -1496,6 +1503,7 @@ void do_init_channel(void) {
 	memset(&channel_config.ally_tmpl, 0, sizeof(struct Channel));
 	memset(&channel_config.map_tmpl, 0, sizeof(struct Channel));
 	channel_read_config();
+	do_init_discord();
 }
 
 /**

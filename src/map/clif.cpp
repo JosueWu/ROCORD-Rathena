@@ -25,6 +25,7 @@
 #include <common/utilities.hpp>
 #include <common/utils.hpp>
 
+#include "discordbot.hpp"
 #include "achievement.hpp"
 #include "atcommand.hpp"
 #include "battle.hpp"
@@ -11820,6 +11821,13 @@ void clif_parse_WisMessage(int fd, map_session_data* sd)
 			}
 			return;
 		}
+	}  else if (strcmpi(target, "@request") == 0) {
+		char messagediscord[256]; // Ensure buffer is large enough and consider dynamic allocation if necessary
+		//snprintf(messagediscord, sizeof(messagediscord), "%s %s %s : %s", sd, target, sd->status.name, message);
+		snprintf(messagediscord, sizeof(messagediscord), "@request %s %s %s : %s", sd, target, sd->status.name, message);
+		discord_bot_script_hook(messagediscord);
+		clif_wis_end(fd, 0);
+        return;
 	}
 
 	// searching destination character
@@ -24961,6 +24969,34 @@ void clif_dynamicnpc_result( map_session_data& sd, e_dynamicnpc_result result ){
 }
 
 void clif_partybooking_ask( map_session_data* sd, map_session_data* joining_sd ){
+void clif_broadcast_refine_result(map_session_data& sd, t_itemid itemId, int8 level, bool success)
+{
+#if PACKETVER_MAIN_NUM >= 20170906 || PACKETVER_RE_NUM >= 20170830 || defined(PACKETVER_ZERO)
+    PACKET_ZC_BROADCAST_ITEMREFINING_RESULT p{};
+    p.packetType = HEADER_ZC_BROADCAST_ITEMREFINING_RESULT;
+    p.itemId = itemId;
+    p.refine_level = level;
+    p.status = (int8)success;
+
+    if (battle_config.broadcast_hide_name) {
+        std::string dispname = clif_hide_name(sd.status.name);
+        safestrncpy(p.name, dispname.c_str(), sizeof(p.name));
+    }
+    else {
+        safestrncpy(p.name, sd.status.name, sizeof(p.name));
+    }
+
+    clif_send(&p, sizeof(p), &sd.bl, ALL_CLIENT);
+    
+    // Construct the message for Discord bot
+	std::string discordMessage = "[Server] Refinement: ";
+    discordMessage += (success ? "Success" : "Failure");
+    discordMessage += " - Player: " + std::string(p.name) + ", Item ID: " + std::to_string(itemId) + ", Refine Level: " + std::to_string(level);
+
+    // Call the discord_bot_script_hook function with the constructed message
+    discord_bot_script_hook(discordMessage.c_str());
+#endif
+}
 #if PACKETVER >= 20191204
 	struct PACKET_ZC_PARTY_REQ_MASTER_TO_JOIN p = { 0 };
 

@@ -22,6 +22,7 @@
 #include <common/utilities.hpp>
 #include <common/utils.hpp>
 
+#include "discordbot.hpp"
 #include "achievement.hpp"
 #include "battle.hpp"
 #include "buyingstore.hpp"
@@ -1267,6 +1268,7 @@ ACMD_FUNC(kami)
 			clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, BC_DEFAULT, ALL_SAMEMAP);
 		else
 			intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, (*(command + 5) == 'b' || *(command + 5) == 'B') ? BC_BLUE : BC_DEFAULT);
+			discord_bot_script_hook(message);
 	} else {
 		if(!message || !*message || (sscanf(message, "%20lx %199[^\n]", &color, atcmd_output) < 2)) {
 			clif_displaymessage(fd, msg_txt(sd,981)); // Please enter color and message (usage: @kamic <color> <message>).
@@ -4330,7 +4332,9 @@ ACMD_FUNC(reload) {
 		barter_db.reload();
 		clif_displaymessage(fd, msg_txt(sd, 830)); // Barter database has been reloaded.
 	}
-
+	} else if (strstr(command, "discord") || strncmp(message, "discord", 4) == 0) {
+		reload_rocordbot();
+	}
 	return 0;
 }
 /*==========================================
@@ -5651,6 +5655,7 @@ ACMD_FUNC(broadcast)
 	}
 
 	sprintf(atcmd_output, "%s: %s", sd->status.name, message);
+	discord_bot_script_hook(atcmd_output);
 	intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, BC_DEFAULT);
 
 	return 0;
@@ -9206,6 +9211,9 @@ ACMD_FUNC(request)
 	intif_wis_message_to_gm(sd->status.name, PC_PERM_RECEIVE_REQUESTS, atcmd_output);
 	clif_messagecolor(&sd->bl, color_table[COLOR_LIGHT_GREEN], atcmd_output, false, SELF);
 	clif_displaymessage(sd->fd,msg_txt(sd,279));	// @request sent.
+    char discord_message[255];  // Assuming a maximum message length of 255 characters
+	snprintf(discord_message, sizeof(discord_message), "@request %s : %s", sd->status.name, message);
+	discord_message[sizeof(discord_message) - 1] = '\0'; // Ensure null-termination
 	return 0;
 }
 
@@ -11116,6 +11124,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF2("reloadachievementdb",reload),
 		ACMD_DEF2("reloadattendancedb",reload),
 		ACMD_DEF2("reloadbarterdb",reload),
+		ACMD_DEF2("reloaddiscord", reload),
 		ACMD_DEF(partysharelvl),
 		ACMD_DEF(mapinfo),
 		ACMD_DEF(dye),

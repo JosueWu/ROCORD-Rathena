@@ -23,6 +23,7 @@
 #include <common/utilities.hpp>
 #include <common/utils.hpp>
 
+#include "discordbot.hpp"
 #include "achievement.hpp"
 #include "battle.hpp"
 #include "clif.hpp"
@@ -2985,15 +2986,18 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			//A Rare Drop Global Announce by Lupus
 			if (mvp_sd && md->db->dropitem[i].rate <= battle_config.rare_drop_announce) {
-				char message[128];
-				sprintf(message, msg_txt(nullptr, 541), mvp_sd->status.name, md->name, it->ename.c_str(), (float)drop_rate / 100);
-				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
-				intif_broadcast(message, strlen(message) + 1, BC_DEFAULT);
-			}
+			char message[128];
+			sprintf(message, "[Server] '%s' got %s's %s (chance: %0.02f%%)", mvp_sd->status.name, md->name, it->ename.c_str(), (float)drop_rate / 100);
+			// MSG: "'%s' won %s's %s (chance: %0.02f%%)"
+			intif_broadcast(message, strlen(message) + 1, BC_DEFAULT);
+			discord_bot_script_hook(message);
+			}	
 			// Announce first, or else ditem will be freed. [Lance]
 			// By popular demand, use base drop rate for autoloot code. [Skotlex]
 			mob_item_drop(md, dlist, ditem, 0, battle_config.autoloot_adjust ? drop_rate : md->db->dropitem[i].rate, homkillonly || merckillonly);
 		}
+		
+		
 
 		// Process map specific drops
 		std::shared_ptr<s_map_drops> mapdrops;

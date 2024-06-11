@@ -30,7 +30,7 @@
 #include <common/timer.hpp>
 #include <common/utilities.hpp>
 #include <common/utils.hpp>
-
+#include "discordbot.hpp"
 #include "achievement.hpp"
 #include "atcommand.hpp"
 #include "battle.hpp"
@@ -11885,6 +11885,7 @@ BUILDIN_FUNC(announce)
 		else
 			intif_broadcast(mes, (int)strlen(mes)+1, flag&BC_COLOR_MASK);
 	}
+	discord_bot_script_hook(mes);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -27311,9 +27312,21 @@ BUILDIN_FUNC(preg_match) {
 #endif
 }
 
+/** Send Mesasge to Discord Server
+* 
+*/
+BUILDIN_FUNC(discord) {
+	if (!script_hasdata(st, 2)) {
+		return SCRIPT_CMD_SUCCESS;
+	} 
+	discord_bot_script_hook(script_getstr(st, 2));
+	return SCRIPT_CMD_SUCCESS;
+}
 /// script command definitions
 /// for an explanation on args, see add_buildin_func
 struct script_function buildin_func[] = {
+	// Discord
+	BUILDIN_DEF(discord, "s*"),
 	// NPC interaction
 	BUILDIN_DEF(mes,"s*"),
 	BUILDIN_DEF(next,""),
