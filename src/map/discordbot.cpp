@@ -1,8 +1,10 @@
-// Revision for @request Chat Jowie/Gamingmagic
-// Revision for Multiple Channel Jowie/Gamingmagic
-// Revision for Reading Link Item for Latest Rathena Jowie/Gamingmagic
-// Added Robust Connection
-// Added @reloaddiscord
+// Original Norminator
+// Revision for @request Chat Holic & Brent Code
+// Revision for Multiple Channel Holic & Asheraf
+// Revision for Reading Link Item for Latest Rathena Holic & Asheraf
+// Added Robust Connection Holic
+// Added @reloaddiscord Holic & Brent Code
+// Linux g++
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -407,8 +409,8 @@ void discord_bot_hook(struct Channel *channel, struct map_session_data *sd, cons
 
 void discord_bot_defaults(void) {
     discord = &discord_bot_s;
-    discord->ip_name = "139.99.116.89";
-    discord->port = 1337;
+    discord->ip_name = "127.0.0.1"; //Replace with your Server IP
+    discord->port = 9999;
     discord->isOn = false;
     discord->channel_discord = NULL;
     discord->channel_filipino = NULL;
