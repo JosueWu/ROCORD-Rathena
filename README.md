@@ -79,6 +79,7 @@ A Node.js-based Discord bot that relays messages between a Rathena server and Di
 	  #brazil
 	  #Filipino
 	  ```
+![image](https://github.com/gamingmagic/ROCORD-Rathena/assets/53240858/777f298f-a17e-4ff8-a3ac-7995c4757577)
 
 3. **TCP Server:**
 
