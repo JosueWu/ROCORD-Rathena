@@ -103,7 +103,9 @@ A Node.js-based Discord bot that relays messages between a Rathena server and Di
 Feel free to fork this repository and submit pull requests. Contributions are welcome!
 
 ## Original Author
+
 Normynator
+
 ---
 
 *This project is maintained by [GamingMagic](https://github.com/gamingmagic).*
