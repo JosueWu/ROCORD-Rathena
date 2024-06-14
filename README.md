@@ -55,7 +55,8 @@ A Node.js-based Discord bot that relays messages between a Rathena server and Di
 1. **Start the bot:**
 
     ```sh
-    node bot.js
+    node index.js
+    or use PM2 for robust connection.
     ```
 
 2. **Bot commands:**
