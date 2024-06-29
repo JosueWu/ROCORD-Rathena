@@ -82,6 +82,10 @@ A Node.js-based Discord bot that relays messages between a Rathena server and Di
 	  ```
 ![image](https://github.com/gamingmagic/ROCORD-Rathena/assets/53240858/777f298f-a17e-4ff8-a3ac-7995c4757577)
 
+
+https://github.com/gamingmagic/ROCORD-Rathena/assets/53240858/26627763-2044-4f3a-93d6-7e3f2cdce9f4
+
+
 3. **TCP Server:**
 
     The bot starts a TCP server on the specified IP and port. You can send messages to the server, and it will relay them to the appropriate Discord channels based on the prefixes in the message content.
